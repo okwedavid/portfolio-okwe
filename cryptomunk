@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>David's Cryptocurrency Exchange</title>
+  <style>
+    /* Add your custom CSS styles here */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #007bff;
+      color: #fff;
+      padding: 10px 0;
+      text-align: center;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    .section-heading {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    .section-content {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .skills-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    .skills-list li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>David's Cryptocurrency Exchange</h1>
+  </header>
+  <div class="container">
+    <section class="section">
+      <h2 class="section-heading">About Me</h2>
+      <p class="section-content">Hello, I'm David, a front-end developer, video editor, genetic engineer, and crypto analyst. My hobbies include driving, adventure, tech research and inventions, hiking, site seeing, and meta.</p>
+    </section>
+    <section class="section">
+      <h2 class="section-heading">Services</h2>
+      <p class="section-content">I offer cryptocurrency exchange services to convert digital currencies to legal currencies seamlessly.</p>
+    </section>
+    <section class="section">
+      <h2 class="section-heading">Skills</h2>
+      <ul class="skills-list">
+        <li>Front-end Development</li>
+        <li>Video Editing</li>
+        <li>Genetic Engineering</li>
+        <li>Crypto Analysis</li>
+      </ul>
+    </section>
+    <section class="section">
+      <h2 class="section-heading">Contact Me</h2>
+      <p class="section-content">You can reach out to me through email at david@example.com or connect with me on social media.</p>
+    </section>
+  </div>
+</body>
+</html>

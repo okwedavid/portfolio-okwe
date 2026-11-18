@@ -1,12 +1,13 @@
 {
   "name": "portfolio",
   "version": "1.0.0",
-  "description": "Landing page for portfolio",
+  "description": "Portfolio | Okwe David",
   "default": "index.html",
   "scripts": {
+    "start": "python3 -m http.server 4174",
+    "preview": "python3 -m http.server 4174",
     "watch:sass": "node-sass sass/main.scss css/style.css -w",
     "devserver": "live-server",
-    "start": "npm-run-all --parallel devserver watch:sass",
     "compile:sass": "node-sass sass/main.scss css/style.comp.css",
     "prefix:css": "postcss --use autoprefixer -b 'last 10 version' css/style.comp.css -o css/style.prefix.css",
     "compress:css": "node-sass css/style.prefix.css css/style.css --output-style compressed",

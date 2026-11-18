@@ -1,138 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <title>Portfolio</title>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.google.com/specimen/Roboto.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
-      integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <link rel="stylesheet" href="css/style.css" />
+    <meta name="theme-color" content="#050816" />
+    <meta name="description" content="Okwe David builds AI products, full-stack systems, and thoughtful user experiences." />
+    <title>Okwe David — AI & Software Engineer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js"}}
+    </script>
+    <script type="module" src="./app.js"></script>
   </head>
   <body>
-    <!----hero section---->
-    <div class="hero">
-      <nav>
-        <h2 class="logo">Portfo<span>lio</span></h2>
-        <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Services</a></li>
-          <li><a href="#">Skills</a></li>
-          <li><a href="#">Contact us</a></li>
-        </ul>
-        <a class="btn" href="">Subscribe</a>
-      </nav>
-      <div class="content">
-        <h4>Hi! My name is</h4>
-        <h1>Okwe <span>Dvaid</span></h1>
-        <h3>I'm a Web Developer</h3>
-        <div class="newsletter">
-          <form action="">
-            <input
-              type="email"
-              name="email"
-              id="mail"
-              placeholder="Enter Your Email"
-            />
-            <input type="submit" name="submit" value="Let's start" />
+    <canvas id="earth-canvas" aria-hidden="true"></canvas>
+    <div class="site-backdrop" aria-hidden="true"></div>
+    <header class="navbar">
+      <div class="nav-inner">
+        <a class="logo" href="#home" aria-label="David Okwe, home"><span class="logo-mark">D</span><span>David Okwe <b>.U</b></span></a>
+        <nav aria-label="Main navigation">
+          <a href="#about">About</a>
+          <a href="#work">Work</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <section class="hero section-shell" id="home" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <span class="timeline-line" aria-hidden="true"><i></i></span>
+          <div class="hero-copy">
+            <p class="eyebrow">AI ENGINEERING · FULL-STACK SOFTWARE</p>
+            <h1 id="hero-title">Hi! I’m<br /><span>Okwe David</span></h1>
+            <p class="hero-intro">I build AI-powered products and the software around them — from dependable backend systems to clear, responsive interfaces.</p>
+            <div class="hero-actions">
+              <a class="primary-button" href="#work">See my projects <span aria-hidden="true">↘</span></a>
+              <a class="secondary-link" href="#contact">Get in touch <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+          <a class="scroll-indicator" href="#about" aria-label="Scroll to about section"><span class="mouse"><i></i></span><span>SCROLL TO EXPLORE</span></a>
+        </div>
+      </section>
+
+      <section class="content-section section-shell" id="about" aria-labelledby="about-title">
+        <div class="section-heading">
+          <p class="eyebrow">INTRODUCTION</p>
+          <h2 id="about-title">Overview<span>.</span></h2>
+        </div>
+        <p class="section-lead">I’m an AI and software engineer who enjoys turning complex problems into useful, reliable products. I work across the stack, with a focus on practical AI, solid systems, and interfaces that make the work easy to understand.</p>
+        <div class="focus-grid">
+          <article class="focus-card"><span class="focus-icon icon-ai">✳</span><h3>AI Engineering</h3><p>Agent workflows, model integrations, and useful AI features grounded in real product needs.</p></article>
+          <article class="focus-card"><span class="focus-icon icon-frontend">◉</span><h3>Frontend</h3><p>Accessible, responsive interfaces that make complex tools feel straightforward.</p></article>
+          <article class="focus-card"><span class="focus-icon icon-backend">⌘</span><h3>Backend</h3><p>APIs, data flows, and maintainable services built to support dependable products.</p></article>
+          <article class="focus-card"><span class="focus-icon icon-systems">⟡</span><h3>Computer Vision</h3><p>Detection and monitoring workflows that connect model output to operational action.</p></article>
+        </div>
+      </section>
+
+      <section class="content-section work-section section-shell" id="work" aria-labelledby="work-title">
+        <div class="section-heading">
+          <p class="eyebrow">WHAT I HAVE BUILT</p>
+          <h2 id="work-title">Selected projects<span>.</span></h2>
+        </div>
+        <p class="section-lead">A closer look at projects across agentic AI, finance, computer vision, and data products. Open a live demo or inspect the source to see how each one works.</p>
+        <div class="project-filters" role="group" aria-label="Filter projects">
+          <button class="filter-button active" type="button" data-filter="all" aria-pressed="true">All projects</button>
+          <button class="filter-button" type="button" data-filter="ai" aria-pressed="false">AI & agents</button>
+          <button class="filter-button" type="button" data-filter="vision" aria-pressed="false">Computer vision</button>
+          <button class="filter-button" type="button" data-filter="product" aria-pressed="false">Products</button>
+        </div>
+        <div class="projects-grid" id="projects-grid"></div>
+      </section>
+
+      <section class="content-section approach-section section-shell" id="approach" aria-labelledby="approach-title">
+        <div class="section-heading">
+          <p class="eyebrow">HOW I APPROACH THE WORK</p>
+          <h2 id="approach-title">Useful, thoughtful, <span>built to last.</span></h2>
+        </div>
+        <div class="approach-grid">
+          <article class="approach-card"><span>01</span><div><h3>Start with the problem</h3><p>Understand who needs the software and what a successful outcome looks like.</p></div></article>
+          <article class="approach-card"><span>02</span><div><h3>Make the system legible</h3><p>Choose clear interfaces and architecture that teammates can reason about.</p></div></article>
+          <article class="approach-card"><span>03</span><div><h3>Close the loop</h3><p>Ship, observe how it works, and improve based on real use and feedback.</p></div></article>
+        </div>
+      </section>
+
+      <section class="content-section contact-section section-shell" id="contact" aria-labelledby="contact-title">
+        <div class="section-heading">
+          <p class="eyebrow">GET IN TOUCH</p>
+          <h2 id="contact-title">Contact<span>.</span></h2>
+        </div>
+        <div class="contact-layout">
+          <div class="contact-copy"><h3>Have a project or role in mind?</h3><p>I’m open to AI engineering, backend, frontend, and full-stack opportunities. Send a note and tell me what you’re working on.</p><p class="contact-note">For now, this form is designed for Netlify Forms. To relay submissions to WhatsApp or add a voice agent, follow the setup notes in the project README.</p></div>
+          <form class="contact-form" name="portfolio-contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+            <input type="hidden" name="form-name" value="portfolio-contact" />
+            <p class="honeypot"><label>Don’t fill this out: <input name="bot-field" /></label></p>
+            <label for="visitor-name">Your name</label><input id="visitor-name" name="name" type="text" autocomplete="name" placeholder="Your name" required />
+            <label for="visitor-email">Your email</label><input id="visitor-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+            <label for="visitor-message">Your message</label><textarea id="visitor-message" name="message" rows="5" placeholder="Tell me a little about it…" required></textarea>
+            <button class="primary-button" type="submit">Send message <span aria-hidden="true">↗</span></button>
+            <p class="form-status" id="form-status" aria-live="polite"></p>
           </form>
         </div>
-      </div>
-    </div>
-    <!--section about-->
-    <section class="about">
-      <div class="main">
-        <div class="about-text">
-          <h2>About me</h2>
-          <h5>Developer <span>& Designe</span></h5>
-          <p>
-            I am a front-end web developer, I can provide clean code and pixel
-            perfect design. I also make the website more interactive with web
-            animations. I am a front-end web developer, I can provide clean code
-            and pixel perfect design. I also make the website more interactive
-            with web animations. A responsive design makes your website
-            accessible to all users, regardless to all users and their devices.
-          </p>
-          <button type="button">Let's Talk</button>
-        </div>
-      </div>
-    </section>
-    <!------services-->
-    <div class="services">
-      <div class="title">
-        <h2>Our Services</h2>
-      </div>
-      <div class="box">
-        <div class="cards">
-          <i class="fa fa-bars" aria-hidden="true"></i>
-          <h5>Web Development</h5>
-          <div class="pra">
-            <p>
-              Every website should meet these two primary goals, first it should
-              work on all devices, secondly it needs to be fast as possible.
-            </p>
-            <p style="text-align: center">
-              <a class="button" href="#" id="">Read More</a>
-            </p>
-          </div>
-        </div>
-
-        <div class="cards">
-          <i class="fa fa-user" aria-hidden="true"></i>
-          <h5>Web Development</h5>
-          <div class="pra">
-            <p>
-              Every website should meet these two primary goals, first it should
-              work on all devices, secondly it needs to be fast as possible.
-            </p>
-            <p style="text-align: center">
-              <a class="button" href="#" id="">Read More</a>
-            </p>
-          </div>
-        </div>
-
-        <div class="cards">
-          <i class="fa fa-bell" aria-hidden="true"></i>
-          <h5>Web Development</h5>
-          <div class="pra">
-            <p>
-              Every website should meet these two primary goals, first it should
-              work on all devices, secondly it needs to be fast as possible.
-            </p>
-            <p style="text-align: center">
-              <a class="button" href="#" id="">Read More</a>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="contact-me">
-      <p>Let Me Get You A Beautiful Website.</p>
-      <a href="#" class="button-two">Hire Me</a>
-    </div>
-    <footer>
-      <p>Okwe Dvaid</p>
-      <p>
-        For more HTML, CSS and coding tutorial-please click on the link below to
-        subscribe to my channel:
-      </p>
-      <div class="social">
-        <a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-        <a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-        <a href="#"><i class="fa fa-github-alt" aria-hidden="true"></i></a>
-      </div>
-      <p class="end">CopyRight By Okwe David</p>
-    </footer>
+      </section>
+    </main>
+    <footer class="footer section-shell"><a class="logo" href="#home"><span class="logo-mark">D</span><span>David Okwe <b>.U</b></span></a><p>Built with care in Lagos, Nigeria.</p><a href="https://github.com/okwedavid" target="_blank" rel="noreferrer">GitHub ↗</a></footer>
+    <script src="./site.js" defer></script>
   </body>
 </html>

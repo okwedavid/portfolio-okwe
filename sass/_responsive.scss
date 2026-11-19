@@ -250,8 +250,15 @@
     font-size: 8px;
     gap: 6px;
   }
-  .scene-rule {
-    width: 17px;
+  .solar-locator {
+    width: 43px;
+    height: 25px;
+  }
+  .scene-key strong {
+    font-size: 9px;
+  }
+  .scene-key small {
+    font-size: 7px;
   }
   .work-section {
     padding-top: 25px;
@@ -338,10 +345,6 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 5px;
-  }
-  .scene-index,
-  .scene-separator {
-    display: none;
   }
 }
 @media (max-width: 350px) {

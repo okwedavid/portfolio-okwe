@@ -1,6 +1,9 @@
 /* One fixed sky, not a separate cover image on each section. Adjust the globe's
    exposure rather than painting dark rectangles behind the content. */
 .universe {
+  --size: min(52.5vw, 860px);
+  --anchor-x: 74%;
+  --anchor-y: calc(var(--header) + var(--hero) * 0.7);
   position: fixed;
   inset: 0;
   margin: 0;
@@ -17,16 +20,34 @@
   width: 100%;
   height: 100%;
 }
+.earth-window {
+  position: absolute;
+  inset: 0;
+  /* Exposure mask belongs to the sky, not the sections or their copy. */
+  mask-image: linear-gradient(to right, transparent 16%, #0001 33%, #000 53%);
+}
 .earth-scene {
-  --size: min(52.5vw, 860px);
   position: absolute;
   width: var(--size);
   height: var(--size);
-  left: 74%;
-  top: calc(var(--header) + var(--hero) * 0.7);
-  transform: translate(-50%, -50%);
+  left: var(--anchor-x);
+  top: var(--anchor-y);
+  transform: translate3d(calc(-50% + var(--travel-x, 0%)), calc(-50% + var(--travel-y, 0%)), 0);
   opacity: 0.43;
   transition: opacity 0.4s ease;
+}
+.solar-track {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  /* No-script / first paint: the same opening exposure as the Earth poster. */
+  transform: translate(-37.5852%, -23.4989%);
+}
+.solar-corona {
+  width: 48%;
+  height: auto;
+  transform: scale(1.0134);
 }
 .overview-lit .earth-scene {
   opacity: 1;
@@ -74,29 +95,44 @@
   stroke-width: 2;
 }
 @media (min-width: 1700px) {
-  .earth-scene {
-    left: calc(50% + 380px);
+  .universe {
+    --anchor-x: calc(50% + 380px);
   }
 }
 @media (max-width: 1050px) {
-  .earth-scene {
+  .universe {
     --size: 59vw;
-    left: 77%;
-    top: calc(var(--header) + var(--hero) * 0.63);
+    --anchor-x: 77%;
+    --anchor-y: calc(var(--header) + var(--hero) * 0.63);
   }
 }
 @media (max-width: 880px) {
-  .earth-scene {
+  .universe {
     --size: 65vw;
-    left: 82%;
-    top: calc(var(--header) + var(--hero) * 0.62);
+    --anchor-x: 82%;
+    --anchor-y: calc(var(--header) + var(--hero) * 0.62);
   }
 }
 @media (max-width: 600px) {
-  .earth-scene {
+  /* Keep the project heading readable even when bright clouds cross it. */
+  .overview-lit {
+    --below-hero: #0006;
+  }
+  .earth-window {
+    mask-image: linear-gradient(
+      180deg,
+      transparent calc(var(--header) + 204px),
+      #0004 calc(var(--header) + 314px),
+      #000 calc(var(--header) + 358px),
+      #000 calc(var(--header) + var(--hero) - 88px),
+      var(--below-hero, #000) calc(var(--header) + var(--hero) + 18px)
+    );
+  }
+
+  .universe {
     --size: min(119vw, 540px);
-    left: 78%;
-    top: calc(var(--header) + var(--hero) * 0.93);
+    --anchor-x: 78%;
+    --anchor-y: calc(var(--header) + var(--hero) * 0.93);
   }
 }
 @media print {

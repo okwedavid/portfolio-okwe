@@ -1,9 +1,8 @@
-// Orthographic Earth, rendered from local day/night maps. No globe library or network tiles.
-const DAY = new URL('../img/earth/day.webp', import.meta.url);
-const NIGHT = new URL('../img/earth/night.webp', import.meta.url);
-const RAD = Math.PI / 180;
-const LAT = 17 * RAD;
-const RADIUS = 423;
+// A fixed-scale, Earth-tracking view. All moving parts sample the same active clock.
+import { globe } from './earth-material.js';
+import { RAD, EARTH_RADIUS, globeBasis, projectPoint, solarState } from './solar-motion.js';
+
+const RADIUS = 1000 * EARTH_RADIUS;
 const SVG = 'http://www.w3.org/2000/svg';
 
 function stars() {
@@ -59,13 +58,9 @@ function overlay(scene) {
     Math.cos(lat * RAD) * Math.sin(lon * RAD),
   ];
   const home = vector(9, 8);
-  function project([x, y, z], lon) {
-    const depth = x * Math.cos(lon) + z * Math.sin(lon);
-    return [
-      500 + RADIUS * (z * Math.cos(lon) - x * Math.sin(lon)),
-      500 - RADIUS * (y * Math.cos(LAT) - depth * Math.sin(LAT)),
-      y * Math.sin(LAT) + depth * Math.cos(LAT),
-    ];
+  function project(point, basis) {
+    const [x, y, z] = projectPoint(point, basis);
+    return [500 + RADIUS * x, 500 - RADIUS * y, z];
   }
   const path = (points) => {
     let move = true;
@@ -159,144 +154,109 @@ function overlay(scene) {
     },
     marker,
   ).textContent = 'BASE : NG';
-  return (longitude, time) => {
+  function surface(longitude) {
+    const basis = globeBasis(longitude);
     for (const { points, curve, end } of trajectories) {
-      const projected = points.map((v) => project(v, longitude));
+      const projected = points.map((v) => project(v, basis));
       curve.setAttribute('d', path(projected));
       const [x, y, z] = projected.at(-1);
       end.setAttribute('cx', x);
       end.setAttribute('cy', y);
       end.setAttribute('opacity', z > 0 ? 0.9 : 0);
     }
-    const [x, y] = project(home, longitude);
+    const [x, y, z] = project(home, basis);
+    marker.setAttribute('visibility', z > 0 ? 'visible' : 'hidden');
     marker.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+  }
+  function tracer(time) {
     const [sx, sy, sz] = orbit(2.42 + time * 0.034, 500, -0.31, 0.29);
     satellite.setAttribute('cx', sx);
     satellite.setAttribute('cy', sy);
     satellite.setAttribute('opacity', sz < 0 && Math.hypot(sx - 500, sy - 500) < RADIUS ? 0 : 1);
-  };
-}
-
-async function globe(canvas) {
-  const gl = canvas.getContext('webgl', {
-    alpha: true,
-    antialias: false,
-    depth: false,
-    premultipliedAlpha: false,
-    powerPreference: 'low-power',
-  });
-  if (!gl) throw new Error('Static Earth fallback');
-  const vertex = `attribute vec2 position;varying vec2 p;void main(){p=position / .846;gl_Position=vec4(position,0.,1.);}`;
-  const fragment = `precision highp float;varying vec2 p;uniform float longitude;uniform sampler2D dayMap,nightMap;
-  void main(){float r=length(p);if(r>1.19){gl_FragColor=vec4(0.);return;}
-    if(r>1.){float h=r-1.;float a=(exp(-h*115.)*.84+exp(-h*24.)*.12)*clamp(.45+.65*dot(p,vec2(-.52,.82)),.06,1.);gl_FragColor=vec4(.4,.66,.84,a);return;}
-    float z=sqrt(max(0.,1.-dot(p,p)));vec3 n=vec3(p,z);float lat0=.296705973;
-    vec2 uv=vec2(fract((longitude+atan(p.x,z*cos(lat0)-p.y*sin(lat0)))/6.2831853+.5),.5-asin(clamp(p.y*cos(lat0)+z*sin(lat0),-1.,1.))/3.14159265);
-    vec3 day=texture2D(dayMap,uv).rgb,night=texture2D(nightMap,uv).rgb;float lum=dot(day,vec3(.23,.59,.18));float d=dot(n,normalize(vec3(-.52,.82,-.24)));
-    vec3 color=mix(day,vec3(lum),.49)*vec3(.76,.91,.99)*(.19+.86*pow(max(0.,d),.68))+vec3(.008,.018,.029);
-    color+=pow(max(0.,night.r-.45*night.b),.84)*vec3(1.5,1.11,.61)*(1.-clamp((d+.18)/.45,0.,1.));
-    color+=pow(1.-z,3.3)*(.14+1.02*max(0.,d))*vec3(.36,.69,.92);gl_FragColor=vec4(color,1.);}`;
-  const program = gl.createProgram();
-  for (const [type, source] of [
-    [gl.VERTEX_SHADER, vertex],
-    [gl.FRAGMENT_SHADER, fragment],
-  ]) {
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error('Static Earth fallback');
-    gl.attachShader(program, shader);
-    gl.deleteShader(shader);
   }
-  gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('Static Earth fallback');
-  gl.useProgram(program);
-  const pos = gl.getAttribLocation(program, 'position');
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-  gl.enableVertexAttribArray(pos);
-  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-  await Promise.all(
-    [
-      [DAY, 'dayMap'],
-      [NIGHT, 'nightMap'],
-    ].map(async ([url, name], i) => {
-      const image = new Image();
-      image.src = url;
-      await image.decode();
-      gl.activeTexture(gl.TEXTURE0 + i);
-      gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-      gl.uniform1i(gl.getUniformLocation(program, name), i);
-    }),
-  );
-  const longitude = gl.getUniformLocation(program, 'longitude');
-  return (lon) => {
-    const size = Math.min(
-      1200,
-      Math.round(canvas.clientWidth * Math.min(devicePixelRatio || 1, 1.5)),
-    );
-    if (canvas.width !== size || canvas.height !== size) {
-      canvas.width = size;
-      canvas.height = size;
-      gl.viewport(0, 0, size, size);
-    }
-    gl.uniform1f(longitude, lon);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  };
+  return { surface, tracer };
 }
 
 export function initEarth() {
   stars();
   const sky = document.querySelector('.universe');
-  const scene = sky.querySelector('.earth-scene'),
-    canvas = scene.querySelector('canvas'),
-    drawRoutes = overlay(scene),
-    toggles = document.querySelectorAll('[data-orbit-toggle]');
-  let heroLit = false;
+  const scene = sky.querySelector('.earth-scene');
+  const canvas = scene.querySelector('canvas');
+  const corona = sky.querySelector('.solar-corona');
+  const track = sky.querySelector('.solar-track');
+  const yearMarker = document.querySelector('.year-marker');
+  const routes = overlay(scene);
+  const toggles = document.querySelectorAll('[data-orbit-toggle]');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const opening = solarState(0);
   let paused = reduced.matches,
     visible = false,
-    draw = null,
+    heroLit = false;
+  let draw = null,
     attempted = false,
-    frame = 0,
-    last = 0,
-    time = 0;
+    contextVersion = 0,
+    lastState = null;
+  let frame = 0,
+    elapsed = 0,
+    runningSince = null,
+    lastPaint = null,
+    pixels = 0;
+  let materialStartedAt = 0;
   try {
-    paused = reduced.matches || localStorage.getItem('od-motion') === 'paused';
+    paused ||= localStorage.getItem('od-motion') === 'paused';
   } catch {}
-  function render() {
-    const lon = (17 + (draw ? 10 * Math.sin(time * 0.018) : 0)) * RAD;
-    if (draw) {
-      draw(lon);
+
+  function clock(now = performance.now()) {
+    return elapsed + (runningSince === null ? 0 : Math.max(0, now - runningSince) / 1000);
+  }
+  function render(seconds = clock()) {
+    // The poster is an exposure of t=0. Don't move the Sun independently of a
+    // frozen texture on low-data/no-GPU devices or while maps are still loading.
+    const state = draw ? solarState(Math.max(0, seconds - materialStartedAt)) : opening;
+    if (draw && pixels) {
+      draw(state, pixels);
       scene.classList.add('earth-ready');
     }
-    drawRoutes(lon, time);
+    if (state !== lastState) {
+      scene.style.setProperty('--travel-x', `${(100 * state.travel[0]).toFixed(4)}%`);
+      scene.style.setProperty('--travel-y', `${(100 * state.travel[1]).toFixed(4)}%`);
+      track.style.transform = `translate(${(100 * state.emitter.x).toFixed(3)}%, ${(100 * state.emitter.y).toFixed(3)}%)`;
+      track.style.opacity = state.emitter.visibility.toFixed(4);
+      corona.style.transform = `scale(${state.emitter.scale.toFixed(5)})`;
+      if (yearMarker) {
+        yearMarker.setAttribute('cx', (27 * state.orbit.x).toFixed(3));
+        yearMarker.setAttribute('cy', (-9 * state.orbit.y).toFixed(3));
+      }
+      routes.surface(state.longitude);
+      lastState = state;
+    }
+    routes.tracer(seconds);
   }
   function tick(now) {
-    // The quieter reading view keeps moving at a lower frame budget.
-    if (now - last >= 1000 / (heroLit ? 15 : 8)) {
-      time += last ? Math.min((now - last) / 1000, 0.15) : 0;
-      last = now;
-      render();
+    const interval = 1000 / (heroLit ? 24 : 10);
+    if (lastPaint === null || now - lastPaint >= interval) {
+      lastPaint = lastPaint === null ? now : now - ((now - lastPaint) % interval);
+      render(clock(now));
     }
     frame = requestAnimationFrame(tick);
   }
   function sync() {
+    const now = performance.now();
+    elapsed = clock(now);
+    runningSince = null;
     cancelAnimationFrame(frame);
     frame = 0;
-    last = 0;
-    render();
-    if (!paused && visible && !document.hidden) frame = requestAnimationFrame(tick);
+    lastPaint = null;
+    render(elapsed);
+    if (!paused && visible && !document.hidden) {
+      runningSince = now;
+      frame = requestAnimationFrame(tick);
+    }
     const label = paused ? 'Resume orbital motion' : 'Pause orbital motion';
-    for (const toggle of toggles) {
-      toggle.setAttribute('aria-label', label);
-      toggle.title = label;
-      toggle
+    for (const button of toggles) {
+      button.setAttribute('aria-label', label);
+      button.title = label;
+      button
         .querySelector('path')
         .setAttribute('d', paused ? 'm7 4 13 8-13 8Z' : 'M8 5v14m8-14v14');
     }
@@ -305,12 +265,16 @@ export function initEarth() {
     if (attempted || paused || !visible || document.hidden || navigator.connection?.saveData)
       return;
     attempted = true;
+    const version = contextVersion;
     try {
-      draw = await globe(canvas);
+      const material = await globe(canvas);
+      if (version !== contextVersion) return;
+      draw = material;
+      materialStartedAt = clock();
+      sync();
     } catch {
-      draw = null;
+      /* Leave the already-lit poster in place. */
     }
-    sync();
   }
   function toggleMotion() {
     paused = !paused;
@@ -320,9 +284,9 @@ export function initEarth() {
     sync();
     activate();
   }
-  for (const toggle of toggles) {
-    toggle.hidden = false;
-    toggle.addEventListener('click', toggleMotion);
+  for (const button of toggles) {
+    button.hidden = false;
+    button.addEventListener('click', toggleMotion);
   }
   reduced.addEventListener('change', () => {
     paused = reduced.matches;
@@ -333,24 +297,30 @@ export function initEarth() {
     sync();
     activate();
   });
-  new IntersectionObserver(([entry]) => {
-    visible = entry.isIntersecting;
+  new IntersectionObserver(([e]) => {
+    visible = e.isIntersecting;
     sync();
     activate();
   }).observe(sky);
-  // The hero sets the exposure, not the lifetime of the page-wide renderer.
   const overview = document.getElementById('overview');
   if (overview)
     new IntersectionObserver(
-      ([entry]) => {
-        heroLit = entry.intersectionRatio >= 0.45;
+      ([e]) => {
+        heroLit = e.intersectionRatio >= 0.45;
         sky.classList.toggle('overview-lit', heroLit);
       },
       { threshold: [0, 0.45] },
     ).observe(overview);
-  new ResizeObserver(render).observe(scene);
+  new ResizeObserver(([entry]) => {
+    pixels = Math.min(
+      1200,
+      Math.round(entry.contentRect.width * Math.min(devicePixelRatio || 1, 1.5)),
+    );
+    render();
+  }).observe(scene);
   canvas.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
+    contextVersion++;
     draw = null;
     scene.classList.remove('earth-ready');
     sync();

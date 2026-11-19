@@ -16,16 +16,27 @@
   <body>
     <figure class="universe" aria-hidden="true">
       <canvas id="starfield"></canvas>
-      <div class="earth-scene" id="earth-scene">
-        <img
-          class="earth-poster"
-          src="./img/earth/poster.webp"
-          alt=""
-          width="1080"
-          height="1080"
-          fetchpriority="high"
-        />
-        <canvas id="earth-canvas"></canvas>
+      <div class="earth-window">
+        <div class="earth-scene" id="earth-scene">
+          <div class="solar-track">
+            <img
+              class="solar-corona"
+              src="./img/earth/solar-corona.webp"
+              alt=""
+              width="640"
+              height="640"
+            />
+          </div>
+          <img
+            class="earth-poster"
+            src="./img/earth/poster.webp"
+            alt=""
+            width="1080"
+            height="1080"
+            fetchpriority="high"
+          />
+          <canvas id="earth-canvas"></canvas>
+        </div>
       </div>
     </figure>
     <header class="brief-nav">
@@ -149,6 +160,12 @@
       </div>
       <section id="credits" class="brief-credits">
         <h2>Scene credits</h2>
+        <p>
+          The close-up camera follows Earth; the small orbital diagram keeps the Sun at a focus.
+          Spin and year are sped up independently. The axis tilt and orbital eccentricity are
+          Earth-like, but the display is not to scale or a live ephemeris. The visible rays are a
+          coronal glow, optical diffraction, and light scattered by the atmosphere.
+        </p>
         <p>
           Daylight map: NASA Blue Marble imagery distributed with
           <a href="https://github.com/Snrboi/sky-watch-dashboard">Sky Watch</a> (<a

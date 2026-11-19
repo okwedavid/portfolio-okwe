@@ -47,11 +47,6 @@
         <path d="M19.5 10c0 5.4-7.5 11-7.5 11s-7.5-5.6-7.5-11a7.5 7.5 0 1 1 15 0Z" />
         <circle cx="12" cy="10" r="2.4" />
       </symbol>
-      <symbol id="i-globe" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="9" />
-        <ellipse cx="12" cy="12" rx="4" ry="9" />
-        <path d="M3 12h18" />
-      </symbol>
       <symbol id="i-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19" /></symbol>
       <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" /></symbol>
       <symbol id="i-layers" viewBox="0 0 24 24">
@@ -87,16 +82,27 @@
     </svg>
     <figure class="universe" aria-hidden="true">
       <canvas id="starfield"></canvas>
-      <div class="earth-scene" id="earth-scene">
-        <img
-          class="earth-poster"
-          src="./img/earth/poster.webp"
-          alt=""
-          width="1080"
-          height="1080"
-          fetchpriority="high"
-        />
-        <canvas id="earth-canvas"></canvas>
+      <div class="earth-window">
+        <div class="earth-scene" id="earth-scene">
+          <div class="solar-track">
+            <img
+              class="solar-corona"
+              src="./img/earth/solar-corona.webp"
+              alt=""
+              width="640"
+              height="640"
+            />
+          </div>
+          <img
+            class="earth-poster"
+            src="./img/earth/poster.webp"
+            alt=""
+            width="1080"
+            height="1080"
+            fetchpriority="high"
+          />
+          <canvas id="earth-canvas"></canvas>
+        </div>
       </div>
     </figure>
     <header class="site-header">
@@ -166,12 +172,39 @@
               <span>Open to remote</span>
             </div>
           </div>
-          <div class="scene-caption">
-            <span class="scene-rule"></span><svg class="icon"><use href="#i-globe" /></svg
-            ><a href="./engineering-brief.html#credits" title="Earth imagery credits"
-              >EARTH CANVAS</a
-            ><span class="scene-separator">/</span><span class="scene-index">FIG. 01</span>
-          </div>
+          <a
+            class="scene-caption"
+            href="./engineering-brief.html#credits"
+            title="Solar motion and imagery credits"
+          >
+            <svg class="solar-locator" viewBox="0 0 68 34" fill="none" aria-hidden="true">
+              <g transform="translate(34 17) rotate(-14)">
+                <ellipse
+                  cx="-0.45"
+                  cy="0"
+                  rx="27"
+                  ry="9"
+                  stroke="currentColor"
+                  stroke-opacity=".56"
+                  stroke-width=".85"
+                />
+                <circle r="4.3" fill="#ffe2a2" opacity=".15" />
+                <circle r="1.9" fill="#ffe2a2" />
+                <circle
+                  class="year-marker"
+                  cx="20.95"
+                  cy="5.49"
+                  r="2.6"
+                  fill="#b8f6d4"
+                  stroke="#18231e"
+                  stroke-width=".6"
+                />
+              </g>
+            </svg>
+            <span class="scene-key"
+              ><strong>Solar orbit</strong><small>Earth / time-lapse</small></span
+            >
+          </a>
         </div>
       </section>
       <section class="work-section surface" id="projects" aria-labelledby="work-title">

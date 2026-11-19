@@ -15,7 +15,7 @@ The preview listens on `0.0.0.0`; change `PORT` if needed. For editing, run `npm
 
 ```bash
 npm run build    # static pages and local assets in dist/
-npm test         # isolated intake tests; fake providers and synthetic inquiries
+npm test         # orbit, projection and intake tests; no live providers
 npx playwright install chromium
 npm run test:e2e # browser journeys, mobile, keyboard, reduced motion, no-JS content
 ```
@@ -44,7 +44,8 @@ With dependencies installed, run `npm run preview:offline` to generate `preview-
 
 - **`index.html`** — copy, navigation, filters and the five `article.project-card` entries. Each card owns its artwork, repository, optional `data-demo`, stack, and case-study `<template>`. Add or update the matching summary in `engineering-brief.html`.
 - **`sass/`** — base tokens, landing sections, dialogs, breakpoints, print styles. `src/main.js` handles navigation, projects, and dialogs; `src/contact.js` runs the local sample desk.
-- **`src/earth.js`, `sass/_scene.scss`, `img/earth/`** — one fixed Earth behind every section and the on-screen engineering brief. Sections have no painted backdrop; selected-work cards remain solid. Leaving the hero lowers the globe’s exposure and frame rate, not its visibility. The header motion control works throughout; hidden tabs stop animating, reduced motion starts with the local poster, and printing omits the sky.
+- **`src/solar-motion.js`** — the camera tracks a slightly elliptical orbit (eccentricity 0.0167) without zooming; Earth spins eastward on an axis tilted 23.44°. Tune `DAY_SECONDS` (56) and `YEAR_SECONDS` (196) independently. The Sun is at a focus of the small orbit diagram. This is a time-lapse composition, not a to-scale solar system or a live view.
+- **`src/earth-material.js`, `src/earth.js`, `sass/_scene.scss`, `img/earth/`** — one Sun direction drives the day/night boundary, ocean reflections, atmospheric rim and screen position of the solar disc. The disc and its diffraction rays disappear behind Earth or the camera; the light still reaches the sunward hemisphere. The poster is the renderer’s opening exposure. The shared sky stays behind transparent sections and the on-screen brief; work cards stay solid. Leaving the hero lowers exposure and frame rate; pausing or hiding the tab stops the clock. Reduced motion starts on the poster; printing omits the sky.
 - **`img/okwe-david.webp`** — the supplied portrait with its studio background removed using an alpha matte, optimized for the transparent About layout. The source upload and its metadata are not shipped. The image moves above the bio on a phone.
 - **`img/projects/`** — five generated, optimized concept stills, not product screenshots. Image and font credits are in [the brief](engineering-brief.html#credits).
 - **`server/agent.mjs`, `server/receipts.mjs`, `netlify/functions/intake.mjs`** — authenticated provider intake and WhatsApp handoff. The preview is deliberately unable to send real messages.

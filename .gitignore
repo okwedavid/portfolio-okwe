@@ -1,3 +1,14 @@
-node_modules
-dist
-.parcel-cache
+node_modules/
+dist/
+.parcel-cache/
+.netlify/
+.env
+.env.*
+!.env.example
+*.log
+
+test-results/
+playwright-report/
+
+# Downloadable review copies (regenerate with npm run preview:offline)
+preview-files/

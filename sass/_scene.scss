@@ -1,0 +1,168 @@
+/* One fixed sky, not a separate cover image on each section. Adjust the globe's
+   exposure rather than painting dark rectangles behind the content. */
+.universe {
+  --size: min(52.5vw, 860px);
+  --anchor-x: 74%;
+  --anchor-y: calc(var(--header) + var(--hero) * 0.7);
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 77% 20%, #13202655, transparent 48%),
+    linear-gradient(115deg, #090e11, #080d11 55%, #0b141a);
+}
+#starfield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.earth-window {
+  position: absolute;
+  inset: 0;
+  /* Exposure mask belongs to the sky, not the sections or their copy. */
+  mask-image: linear-gradient(to right, transparent 16%, #0001 33%, #000 53%);
+}
+.earth-scene {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  left: var(--anchor-x);
+  top: var(--anchor-y);
+  transform: translate3d(calc(-50% + var(--travel-x, 0%)), calc(-50% + var(--travel-y, 0%)), 0);
+  opacity: 0.43;
+  transition: opacity 0.4s ease;
+}
+.solar-track {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  /* No-script / first paint: the same opening exposure as the Earth poster. */
+  transform: translate(-44.184%, 6.4063%);
+}
+.solar-corona,
+.solar-disc {
+  grid-area: 1 / 1;
+  transform: scale(var(--disc-scale, 1.00409));
+}
+.solar-disc {
+  width: 1.95%;
+  height: auto;
+}
+.solar-corona {
+  width: 48%;
+  height: auto;
+}
+.overview-lit .earth-scene {
+  opacity: 1;
+}
+.earth-poster,
+#earth-canvas,
+.orbit-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#earth-canvas {
+  display: block;
+  opacity: 0;
+}
+.earth-ready #earth-canvas {
+  opacity: 1;
+}
+.earth-ready .earth-poster {
+  opacity: 0;
+}
+.orbit-lines {
+  overflow: visible;
+}
+.universe:not(.overview-lit) #base-marker {
+  opacity: 0.28;
+}
+.base-portrait {
+  position: absolute;
+  z-index: 2;
+  /* First-paint position on the static Earth; JS projects the same 9° N, 8° E anchor. */
+  left: 42.1665%;
+  top: 47.7219%;
+  width: clamp(20px, 4.5%, 36px);
+  height: auto;
+  transform: translate(-50%, -100%);
+  filter: drop-shadow(0 1px 1px #04120eb3);
+}
+.universe:not(.overview-lit) .base-portrait {
+  opacity: 0.65;
+}
+.universe.profile-in-view:not(.overview-lit) .base-portrait {
+  opacity: 0;
+}
+.orbit-toggle {
+  width: 35px;
+  height: 35px;
+  flex: 0 0 auto;
+  border: 1px solid #a9c7be40;
+  border-radius: 50%;
+  background: #09111666;
+  color: #d9e6df;
+}
+.orbit-toggle:hover {
+  border-color: var(--mint);
+  color: var(--mint);
+}
+.orbit-toggle .icon {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+}
+@media (min-width: 1700px) {
+  .universe {
+    --anchor-x: calc(50% + 380px);
+  }
+}
+@media (max-width: 1050px) {
+  .universe {
+    --size: 59vw;
+    --anchor-x: 77%;
+    --anchor-y: calc(var(--header) + var(--hero) * 0.63);
+  }
+}
+@media (max-width: 880px) {
+  .universe {
+    --size: 65vw;
+    --anchor-x: 82%;
+    --anchor-y: calc(var(--header) + var(--hero) * 0.62);
+  }
+}
+@media (max-width: 600px) {
+  /* Keep the project heading readable even when bright clouds cross it. */
+  .overview-lit {
+    --below-hero: #0006;
+  }
+  .earth-window {
+    mask-image: linear-gradient(
+      180deg,
+      transparent calc(var(--header) + 204px),
+      #0004 calc(var(--header) + 314px),
+      #000 calc(var(--header) + 358px),
+      #000 calc(var(--header) + var(--hero) - 88px),
+      var(--below-hero, #000) calc(var(--header) + var(--hero) + 18px)
+    );
+  }
+
+  .universe {
+    --size: min(119vw, 540px);
+    --anchor-x: 78%;
+    --anchor-y: calc(var(--header) + var(--hero) * 0.93);
+  }
+}
+@media print {
+  .universe,
+  .orbit-toggle {
+    display: none !important;
+  }
+}

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#090e11" />
+    <title>Engineering brief — Okwe David</title>
+    <meta
+      name="description"
+      content="A printable technical brief with case studies, architecture evidence, and repository links for Okwe David’s portfolio."
+    />
+    <link rel="icon" href="./img/orbit-mark.svg" />
+    <link rel="stylesheet" href="./sass/brief.scss" />
+    <script type="module" src="./src/brief.js"></script>
+  </head>
+  <body>
+    <figure class="universe" aria-hidden="true">
+      <canvas id="starfield"></canvas>
+      <div class="earth-window">
+        <div class="earth-scene" id="earth-scene">
+          <div class="solar-track">
+            <img
+              class="solar-corona"
+              src="./img/earth/solar-corona.webp"
+              alt=""
+              width="640"
+              height="640"
+            />
+            <canvas class="solar-disc" aria-hidden="true"></canvas>
+          </div>
+          <img
+            class="earth-poster"
+            src="./img/earth/poster.webp"
+            alt=""
+            width="1080"
+            height="1080"
+            fetchpriority="high"
+          />
+          <canvas id="earth-canvas"></canvas>
+          <img class="base-portrait" src="./img/okwe-david.webp" width="600" height="712" alt="" />
+        </div>
+      </div>
+    </figure>
+    <header class="brief-nav">
+      <a href="./index.html#about">← Back to portfolio</a>
+      <div class="brief-actions">
+        <button
+          type="button"
+          class="orbit-toggle"
+          data-orbit-toggle
+          hidden
+          aria-label="Pause orbital motion"
+          title="Pause orbital motion"
+        >
+          <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+            <path d="M8 5v14m8-14v14" />
+          </svg></button
+        ><button id="print-brief" class="btn secondary">Print / save PDF</button>
+      </div>
+    </header>
+    <main class="brief-page">
+      <p class="eyebrow"><span class="small-rule"></span>ENGINEER PROFILE / PROJECT BRIEF</p>
+      <h1>Okwe David<span class="mint">.</span></h1>
+      <p class="brief-role">AI &amp; Full-Stack Engineer</p>
+      <p class="brief-meta">
+        Nigeria · Open to remote opportunities ·
+        <a href="https://github.com/okwedavid" target="_top">github.com/okwedavid</a>
+      </p>
+      <p class="brief-intro">
+        My work connects model behavior to APIs, workers, and user interfaces. These are project
+        case studies, not employment or client-performance claims.
+      </p>
+      <h2>Projects to inspect</h2>
+      <div class="brief-projects">
+        <article>
+          <span>01 / AGENT INFRASTRUCTURE</span>
+          <h3>AgentFinance</h3>
+          <p>
+            A Next.js workspace for distributed agent work. Redis-backed workers and a Prisma ledger
+            keep a completed compute job separate from a verified external payment.
+          </p>
+          <p>
+            <strong>Review:</strong> the separation between simulated estimates and funded rewards.
+          </p>
+          <div>
+            <a href="https://github.com/okwedavid/agentfinance" target="_top">Repository</a
+            ><a
+              href="https://github.com/okwedavid/agentfinance/blob/main/PHASE4_COMPUTE_REVENUE_ARCHITECTURE.md"
+              target="_top"
+              >Accounting architecture</a
+            ><a href="https://agentfinance.onrender.com">Demo ↗</a>
+          </div>
+        </article>
+        <article>
+          <span>02 / COGNITIVE SYSTEMS</span>
+          <h3>SAGE</h3>
+          <p>
+            A TypeScript workspace routes intent through normalization, classification, validation,
+            routing, and execution. A provider gateway separates model choice from worker behavior.
+          </p>
+          <p><strong>Review:</strong> intent regression tests and provider-isolation cases.</p>
+          <div>
+            <a href="https://github.com/okwedavid/sage" target="_top">Repository</a
+            ><a href="https://github.com/okwedavid/sage/blob/main/backend/TESTING.md" target="_top"
+              >Testing strategy</a
+            ><a href="https://sage-fx1l.onrender.com">Demo ↗</a>
+          </div>
+        </article>
+        <article>
+          <span>03 / COMPUTER VISION</span>
+          <h3>VisionOps</h3>
+          <p>
+            FastAPI, ONNX Runtime, and a React console turn tracked objects into durable zone events
+            with evidence. A deterministic fixture exercises the pipeline without a camera or GPU.
+          </p>
+          <p>
+            <strong>Review:</strong> the boundary between detection accuracy and event-rule
+            correctness.
+          </p>
+          <div>
+            <a href="https://github.com/okwedavid/VisionOPs" target="_top">Repository</a
+            ><a
+              href="https://github.com/okwedavid/VisionOPs/blob/main/docs/TESTING.md"
+              target="_top"
+              >Test design</a
+            ><a href="https://visionops-uypi.onrender.com">Demo ↗</a>
+          </div>
+        </article>
+        <article>
+          <span>04 / GEOSPATIAL DASHBOARD</span>
+          <h3>Sky Watch</h3>
+          <p>
+            A typed React frontend and FastAPI backend bring together weather, air quality, and ISS
+            data. The Earth view has a canvas fallback; individual panels handle stale data.
+          </p>
+          <p>
+            <strong>Review:</strong> composite UI behavior when an upstream data feed is
+            unavailable.
+          </p>
+          <div>
+            <a href="https://github.com/Snrboi/sky-watch-dashboard" target="_top"
+              >Snrboi / repository</a
+            ><a
+              href="https://github.com/Snrboi/sky-watch-dashboard/blob/main/UPDATE.md"
+              target="_top"
+              >Implementation notes</a
+            ><a href="https://skywatch-x6yn.onrender.com">Demo ↗</a>
+          </div>
+        </article>
+        <article>
+          <span>05 / FRONTEND ENGINEERING</span>
+          <h3>Vision</h3>
+          <p>
+            A React/Vite movie discovery interface with debounced TMDB search, reusable cards, and
+            an Appwrite trending-data integration. A frontend case study, not a video-generation
+            model.
+          </p>
+          <p>
+            <strong>Review:</strong> input handling and component boundaries. Source-only showcase.
+          </p>
+          <div>
+            <a href="https://github.com/okwedavid/vision" target="_top">Repository</a
+            ><a href="https://github.com/okwedavid/vision/tree/main/src/components" target="_top"
+              >Interface components</a
+            >
+          </div>
+        </article>
+      </div>
+      <section id="credits" class="brief-credits">
+        <h2>Scene credits</h2>
+        <p>
+          The camera opens facing Nigeria. Earth turns at sidereal speed; the Sun direction and
+          daylight boundary are calculated from your device’s UTC clock and an approximate
+          elliptical orbit. Sizes and tracking distances are composed for this view, not to scale.
+          The solar surface uses a mean 27.2753-day Earth-view rotation; its markings, star
+          scintillation and satellite traces are illustrative. The still fallback is a reference
+          exposure, not live sunlight.
+        </p>
+        <p>
+          The small portrait at 9° N, 8° E is the same photograph of Okwe shown in About, with its
+          studio background removed.
+        </p>
+
+        <p>
+          Daylight map: NASA Blue Marble imagery distributed with
+          <a href="https://github.com/Snrboi/sky-watch-dashboard" target="_top">Sky Watch</a> (<a
+            href="./img/earth/LICENSE-Sky-Watch.txt"
+            >project license</a
+          >). Night map:
+          <a href="https://www.solarsystemscope.com/textures/">Solar System Scope</a> via the
+          <a
+            href="https://github.com/mrdoob/three.js/blob/dev/examples/webgpu_tsl_earth.html"
+            target="_top"
+            >three.js Earth example</a
+          >, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Maps were
+          resized, lit, and combined into the animated Earth and static fallback. Project stills are
+          original AI-generated concept artwork, not screenshots or product photographs. Manrope and
+          IBM Plex Mono are self-hosted under the SIL Open Font License (<a
+            href="./img/fonts/LICENSE-Manrope.txt"
+            >Manrope license</a
+          >; <a href="./img/fonts/LICENSE-Plex.txt">Plex license</a>).
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

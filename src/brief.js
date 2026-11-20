@@ -1,7 +1,9 @@
+import { initGitHubLinks } from './github-links.js';
 import { initEarth } from './earth.js';
 import './print.js';
 
 // The web brief shares the backdrop; the print stylesheet removes it from the PDF.
+initGitHubLinks();
 try {
   initEarth();
 } catch {

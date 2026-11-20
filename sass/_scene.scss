@@ -42,12 +42,20 @@
   display: grid;
   place-items: center;
   /* No-script / first paint: the same opening exposure as the Earth poster. */
-  transform: translate(-37.5852%, -23.4989%);
+  transform: translate(-44.184%, 6.4063%);
+}
+.solar-corona,
+.solar-disc {
+  grid-area: 1 / 1;
+  transform: scale(var(--disc-scale, 1.00409));
+}
+.solar-disc {
+  width: 1.95%;
+  height: auto;
 }
 .solar-corona {
   width: 48%;
   height: auto;
-  transform: scale(1.0134);
 }
 .overview-lit .earth-scene {
   opacity: 1;
@@ -75,6 +83,50 @@
 }
 .universe:not(.overview-lit) #base-marker {
   opacity: 0.28;
+}
+.base-bust {
+  position: absolute;
+  z-index: 2;
+  left: 42.1665%;
+  top: 47.7219%;
+  width: clamp(61px, 14.8%, 125px);
+  aspect-ratio: 0.9;
+  transform: translate(-50%, -98%);
+  filter: drop-shadow(0 1px 2px #021911a8);
+}
+.base-bust img,
+.base-bust canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.base-bust::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 22%;
+  width: 56%;
+  height: 6%;
+  border: 1px solid #a4f6ceaa;
+  border-radius: 50%;
+  background: #28433c70;
+  box-shadow: 0 0 9px #9af8cf44;
+}
+.base-bust:not(.model-ready) canvas,
+.portrait-stage:not(.model-ready) canvas {
+  visibility: hidden;
+}
+.base-bust.model-ready img,
+.portrait-stage.model-ready img {
+  opacity: 0;
+}
+.universe.studio-in-view:not(.overview-lit) .base-bust {
+  opacity: 0;
+}
+.universe:not(.overview-lit) .base-bust {
+  opacity: 0.65;
 }
 .orbit-toggle {
   width: 35px;

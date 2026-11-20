@@ -3,110 +3,96 @@ import assert from 'node:assert/strict';
 import {
   DAY_SECONDS,
   YEAR_SECONDS,
-  ECCENTRICITY,
-  OBLIQUITY,
-  ORBIT_NORMAL,
-  NORTH,
-  EAST,
-  EQUATOR,
+  SOLAR_ROTATION_DAYS,
   EARTH_RADIUS,
+  ECCENTRICITY,
   RAD,
   TAU,
-  globeBasis,
-  orbitAt,
-  projectPoint,
+  cameraAt,
   solarState,
+  ephemeris,
+  orbitAt,
+  globeBasis,
+  projectPoint,
 } from '../src/solar-motion.js';
-
+const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const dot = (a, b) => a.reduce((sum, n, i) => sum + n * b[i], 0);
-const close = (a, b, tolerance = 1e-10) => assert.ok(Math.abs(a - b) < tolerance, `${a} ≉ ${b}`);
-const vectorClose = (a, b, tolerance) => a.forEach((n, i) => close(n, b[i], tolerance));
+const near = (a, b, e = 1e-8) => assert.ok(Math.abs(a - b) < e, `${a} != ${b} ± ${e}`);
+const unit = (lat, lon) => [
+  Math.cos(lat) * Math.cos(lon),
+  Math.sin(lat),
+  Math.cos(lat) * Math.sin(lon),
+];
+const noon = Date.UTC(2026, 2, 20, 12),
+  h = 3600000,
+  cam = cameraAt(noon);
+const altitudeCos = (ms, c) => {
+  const s = solarState(ms, c);
+  return dot(s.sun, projectPoint(unit(9 * RAD, 8 * RAD), globeBasis(s.longitude)));
+};
 
-test('orbit has a focus at the Sun, takes equal time for equal swept area, and closes', () => {
-  const e = ECCENTRICITY;
-  close(orbitAt(0).distance, 1 - e);
-  close(orbitAt(Math.PI).distance, 1 + e);
-  for (let i = 0; i <= 128; i++) {
-    const mean = (i * TAU) / 128,
-      { x, y, position, distance } = orbitAt(mean);
-    close(Math.hypot(x, y), distance);
-    close(Math.hypot(...position), distance);
-    close(dot(position, ORBIT_NORMAL), 0);
-    const E = Math.atan2(y / Math.sqrt(1 - e * e), x + e);
-    const residual = E - e * Math.sin(E) - mean;
-    close(Math.atan2(Math.sin(residual), Math.cos(residual)), 0);
-    vectorClose(position, orbitAt(mean + TAU).position);
+test('a 1× sidereal spin is eastward, continuous, and takes 23 h 56 min, not a visit-length cycle', () => {
+  const a = solarState(noon, cam),
+    b = solarState(noon + h, cam);
+  near(norm(a.longitude - b.longitude) / RAD, 15.04107, 0.0001);
+  near(norm(solarState(noon + DAY_SECONDS * 1000, cam).longitude - a.longitude), 0, 1e-7);
+  const p = unit(9 * RAD, 8 * RAD);
+  assert.ok(projectPoint(p, globeBasis(a.longitude))[2] > 0.95);
+  assert.ok(
+    projectPoint(p, globeBasis(solarState(noon + DAY_SECONDS * 500, cam).longitude))[2] < -0.95,
+  );
+  for (const dt of [0, 30, 204]) {
+    const t = noon + dt * 864e5;
+    const s0 = solarState(t, cam),
+      s1 = solarState(t + 1000, cam);
+    near(norm(s1.longitude - s0.longitude), -TAU / DAY_SECONDS, 1e-8);
   }
 });
-
-test('the tilted axis stays fixed and the geography spins eastward through a whole day', () => {
-  close(Math.acos(dot(NORTH, ORBIT_NORMAL)), OBLIQUITY);
-  const start = solarState(0).longitude,
-    landmark = [Math.cos(start), 0, Math.sin(start)];
-  const at = (t) => projectPoint(landmark, globeBasis(solarState(t).longitude));
-  vectorClose(at(0), EQUATOR);
-  vectorClose(at(DAY_SECONDS / 4), EAST);
-  assert.ok(at(DAY_SECONDS / 2)[2] < 0, 'landmark on the far side');
-  vectorClose(at(DAY_SECONDS), at(0));
-  // Recover lat/lon using the material's inverse projection, including near the date line.
-  for (const lon of [-179, -90, 0, 8, 179].map((n) => n * RAD)) {
-    const lat = 9 * RAD,
-      point = [Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon)];
-    const n = projectPoint(point, globeBasis(start));
-    close(Math.asin(dot(n, NORTH)), lat);
-    close(Math.cos(start + Math.atan2(dot(n, EAST), dot(n, EQUATOR)) - lon), 1);
+test('UTC gives the equinox/solstice seasons and real daylight in Nigeria, independently of framing', () => {
+  const equinox = ephemeris(Date.UTC(2025, 2, 20, 9, 1));
+  near(equinox.declination / RAD, 0, 0.1);
+  near(equinox.subsolarLongitude / RAD, 46.6, 0.25);
+  near(ephemeris(Date.UTC(2026, 5, 21, 12)).declination / RAD, 23.44, 0.04);
+  near(ephemeris(Date.UTC(2026, 11, 21, 12)).declination / RAD, -23.44, 0.04);
+  for (const camera of [cam, cameraAt(noon + 8 * h), cameraAt(noon + 150 * 24 * h)]) {
+    assert.ok(altitudeCos(noon, camera) > 0.96);
+    assert.ok(altitudeCos(noon + 12 * h, camera) < -0.96);
+    near(altitudeCos(noon + 2 * h, camera), altitudeCos(noon + 2 * h, cam));
   }
 });
-
-test('one Sun gives inverse-square illumination and a same-side, Earth-occluded emitter', () => {
-  let eclipsed = false,
-    visible = false,
-    behindCamera = false;
-  for (let i = 0; i <= 720; i++) {
-    const { orbit, flux, emitter, sun, travel } = solarState((i * YEAR_SECONDS) / 720);
-    close(Math.hypot(...sun), 1);
-    vectorClose(
-      sun.map((n) => -n * orbit.distance),
-      orbit.position,
-    );
-    close(flux * orbit.distance ** 2, 1);
-    assert.ok(Math.abs(travel[0]) < 0.1 && Math.abs(travel[1]) < 0.1, 'tracking not a wide pan');
-    assert.ok(emitter.visibility >= 0 && emitter.visibility <= 1);
+test('solar direction advances about a degree per day; eccentric orbit, flux and occultation agree', () => {
+  near(orbitAt(0).distance, 1 - ECCENTRICITY);
+  near(orbitAt(Math.PI).distance, 1 + ECCENTRICITY);
+  const s = solarState(noon, cam);
+  const daily = Math.acos(dot(s.sun, solarState(noon + 24 * h, cam).sun)) / RAD;
+  assert.ok(daily > 0.95 && daily < 1.03);
+  const next = solarState(noon + YEAR_SECONDS * 1000, cam);
+  near(next.orbit.distance, s.orbit.distance, 1e-7);
+  assert.ok(dot(next.sun, s.sun) > 0.9999);
+  let transit = false,
+    seen = false,
+    out = false;
+  for (let d = 0; d < 366; d++) {
+    const { sun, emitter, orbit, flux } = solarState(noon + d * 864e5, cam);
+    near(Math.hypot(...sun), 1);
+    near(flux * orbit.distance ** 2, 1);
+    near(orbit.distance, Math.hypot(orbit.x, orbit.y));
     if (sun[2] >= 0) {
-      close(emitter.visibility, 0);
-      behindCamera = true;
-    } else if (Math.hypot(emitter.x, emitter.y) < EARTH_RADIUS * 0.97) {
-      close(emitter.visibility, 0);
-      eclipsed = true;
+      near(emitter.visibility, 0);
+      out = true;
+    } else if (Math.hypot(emitter.x, emitter.y) < 0.97 * EARTH_RADIUS) {
+      near(emitter.visibility, 0);
+      transit = true;
     }
-    if (emitter.visibility > 0) {
-      close(emitter.x * sun[1] + emitter.y * sun[0], 0); // screen Y points down
-      assert.ok(emitter.x * sun[0] - emitter.y * sun[1] > 0);
-      visible = true;
+    if (emitter.visibility > 0.1) {
+      near(emitter.x * sun[1] + emitter.y * sun[0], 0);
+      seen = true;
     }
   }
-  assert.ok(eclipsed && visible && behindCamera);
+  assert.ok(transit && out && seen);
 });
-
-test('independent spin and revolution stay continuous at cycle boundaries, even after many years', () => {
-  const home = [1, 0, 0],
-    dt = 1e-5;
-  const pose = (t) => {
-    const s = solarState(t);
-    return [
-      ...s.travel,
-      ...s.sun,
-      ...projectPoint(home, globeBasis(s.longitude)),
-      s.emitter.x,
-      s.emitter.y,
-      s.emitter.visibility,
-    ];
-  };
-  for (const seam of [DAY_SECONDS, YEAR_SECONDS, 100_000 * YEAR_SECONDS]) {
-    vectorClose(pose(seam - dt), pose(seam + dt), 1e-5);
-  }
-  const opening = solarState(0),
-    oneYear = solarState(YEAR_SECONDS);
-  vectorClose(opening.sun, oneYear.sun);
-  vectorClose(oneYear.travel, [0, 0]);
+test('the photosphere follows mean Carrington phase, not the frame rate or terrestrial day', () => {
+  const phase = (t) => solarState(t, cam).solarLongitude;
+  near(norm(phase(noon + 864e5) - phase(noon)), -TAU / SOLAR_ROTATION_DAYS);
+  near(norm(phase(noon + SOLAR_ROTATION_DAYS * 864e5) - phase(noon)), 0);
 });

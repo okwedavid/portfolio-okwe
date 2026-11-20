@@ -1,5 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { DAY_SECONDS, YEAR_SECONDS, EARTH_RADIUS, solarState } from '../../src/solar-motion.js';
+import {
+  DAY_SECONDS,
+  EARTH_RADIUS,
+  solarState,
+  POSTER_UTC,
+  cameraAt,
+} from '../../src/solar-motion.js';
 
 // Exercise the actual material even on a CI machine without a hardware GPU.
 test.use({
@@ -10,8 +16,8 @@ test.use({
   },
 });
 async function openAtSunrise(page) {
-  await page.clock.install({ time: new Date('2024-01-01T00:00:00Z') });
-  await page.clock.pauseAt(new Date('2024-01-01T00:01:00Z'));
+  await page.clock.install({ time: new Date(POSTER_UTC - 60_000) });
+  await page.clock.pauseAt(new Date(POSTER_UTC));
   await page.goto('/');
   await expect(page.locator('#earth-scene')).toHaveClass(/earth-ready/);
 }
@@ -37,7 +43,7 @@ const geometry = (page) =>
 // Read the real shader output, not just the DOM values used to position the flare.
 // Sample two small patches toward opposite limbs; use several texels so a single city isn't decisive.
 async function sampleLight(page, t) {
-  const [sx, sy] = solarState(t).sun;
+  const [sx, sy] = solarState(t, cameraAt(POSTER_UTC)).sun;
   const { luminance, diameterError } = await page.locator('#earth-canvas').evaluate(
     (canvas, { sx, sy, radius }) => {
       const gl = canvas.getContext('webgl'),
@@ -72,7 +78,7 @@ async function sampleLight(page, t) {
   );
 }
 
-test('a rendered orbit reverses the light, occludes the Sun, and never zooms or resets the spin', async ({
+test('UTC lights the real framebuffer while the same geographic point carries the bust around a fixed-size globe', async ({
   page,
 }) => {
   // Only the test needs framebuffer readback after compositing; production can discard it.
@@ -90,70 +96,76 @@ test('a rendered orbit reverses the light, occludes the Sun, and never zooms or 
   const start = await geometry(page);
   expect(start.visible).toBe('visible');
   expect(start.transmission).toBe(1);
-  await sampleLight(page, 0);
-  await page.clock.fastForward(DAY_SECONDS * 500);
-  const far = await geometry(page);
-  expect(far.visible).toBe('hidden');
-  expect(far.year).not.toBe(start.year);
-  await page.clock.fastForward(DAY_SECONDS * 500);
+  await sampleLight(page, POSTER_UTC);
+  const pin = page.locator('.base-bust');
+  await expect(pin).toBeVisible();
+  const aligned = await page.evaluate(() => {
+    const p = document.querySelector('.base-bust'),
+      origin = document.querySelector('#base-marker').transform.baseVal.getItem(0).matrix;
+    return Math.hypot(
+      10 * parseFloat(p.style.left) - origin.e,
+      10 * parseFloat(p.style.top) - origin.f,
+    );
+  });
+  expect(aligned).toBeLessThan(0.09);
+  await page.clock.fastForward(56_000); // the old implementation would already have spun completely
+  const near = await geometry(page);
+  expect(near.visible).toBe('visible');
+  expect(near.base).not.toBe(start.base);
+  expect(Math.abs(near.x - start.x)).toBeLessThan(0.02);
+  await page.clock.fastForward(Math.round(DAY_SECONDS * 500) - 56_000);
+  await expect(pin).toBeHidden();
+  await page.clock.fastForward(Math.round(DAY_SECONDS * 500));
+  await expect(pin).toBeVisible();
   expect((await geometry(page)).base).toBe(start.base);
-  await page.clock.fastForward((YEAR_SECONDS / 2 - DAY_SECONDS) * 1000);
+  const halfYear = 182 * 86400000;
+  await page.clock.fastForward(halfYear - 2 * Math.round(DAY_SECONDS * 500));
   const half = await geometry(page);
   expect(half.width).toBeCloseTo(start.width, 3);
   expect(half.height).toBeCloseTo(start.height, 3);
-  expect(half.x).not.toBe(start.x);
   expect(half.transmission).toBe(0);
-  await sampleLight(page, YEAR_SECONDS / 2);
-  await page.clock.fastForward(YEAR_SECONDS * 350);
-  const eclipse = await page.evaluate(() => {
-    const globe = document.querySelector('#earth-canvas').getBoundingClientRect();
-    const disc = document.querySelector('.solar-corona').getBoundingClientRect();
-    return (
-      Math.hypot(
-        disc.x + disc.width / 2 - globe.x - globe.width / 2,
-        disc.y + disc.height / 2 - globe.y - globe.height / 2,
-      ) / globe.width
-    );
-  });
-  expect(eclipse).toBeLessThan(EARTH_RADIUS);
-  expect((await geometry(page)).transmission).toBe(0);
-  await page.clock.fastForward(YEAR_SECONDS * 150);
-  const year = await geometry(page);
-  expect(year.emitter).toBe(start.emitter);
-  expect(year.year).toBe(start.year);
-  expect(year.x).toBeCloseTo(start.x, 3);
-  expect(year.y).toBeCloseTo(start.y, 3);
-  expect(year.base).not.toBe(start.base);
+  await sampleLight(page, POSTER_UTC + halfYear);
 });
 
-test('on a phone the solar clock freezes and resumes in place on pause and tab visibility changes', async ({
+const stars = (page) =>
+  page.locator('#starfield').evaluate((c) => {
+    const bytes = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+    let h = 5381;
+    for (let i = 3; i < bytes.length; i += 4) h = (Math.imul(33, h) + bytes[i]) | 0;
+    return h;
+  });
+test('stars scintillate independently; pausing holds the sky and returning from a hidden tab resyncs to UTC', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 393, height: 852 });
   await openAtSunrise(page);
-  const width = (await geometry(page)).width;
-  await page.clock.fastForward(6300);
+  const clockLabel = await page.locator('.scene-caption').boundingBox();
+  const baseLabel = await page.locator('#base-marker rect').boundingBox();
+  expect(clockLabel.x + clockLabel.width).toBeLessThan(baseLabel.x);
+  const initial = await stars(page);
+  await page.clock.fastForward(3800);
+  expect(await stars(page)).not.toBe(initial);
   await page.getByRole('button', { name: 'Pause orbital motion' }).dispatchEvent('click');
-  const paused = await geometry(page);
-  await page.clock.fastForward(45_000);
-  expect(await geometry(page)).toEqual(paused);
+  const frozen = await geometry(page),
+    sky = await stars(page);
+  await page.clock.fastForward(6 * 3600000);
+  expect(await geometry(page)).toEqual(frozen);
+  expect(await stars(page)).toBe(sky);
+  await expect(page.locator('.orbit-mode')).toHaveText('Earth / hold');
   await page.getByRole('button', { name: 'Resume orbital motion' }).dispatchEvent('click');
-  expect(await geometry(page)).toEqual(paused);
-  await page.clock.fastForward(5000);
-  expect((await geometry(page)).emitter).not.toBe(paused.emitter);
-  const visible = async (value) =>
-    page.evaluate((value) => {
-      Object.defineProperty(document, 'hidden', { configurable: true, value: !value });
+  expect((await geometry(page)).base).not.toBe(frozen.base);
+  await expect(page.locator('.orbit-stamp')).toContainText('01:10 UTC');
+  const visibility = async (hidden) =>
+    page.evaluate((hidden) => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: hidden });
       document.dispatchEvent(new Event('visibilitychange'));
-    }, value);
-  await visible(false);
+    }, hidden);
+  await visibility(true);
   const hidden = await geometry(page);
-  await page.clock.fastForward(86_400_000);
-  await visible(true);
+  await page.clock.fastForward(9 * 3600000);
   expect(await geometry(page)).toEqual(hidden);
-  await page.clock.fastForward(5000);
-  const next = await geometry(page);
-  expect(next.base).not.toBe(hidden.base);
-  expect(next.width).toBeCloseTo(width, 3);
+  await visibility(false);
+  expect((await geometry(page)).base).not.toBe(hidden.base);
+  await expect(page.locator('.orbit-stamp')).toContainText('10:10 UTC');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

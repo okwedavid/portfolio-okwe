@@ -7,7 +7,13 @@ import { compile } from 'sass';
 const root = new URL('../', import.meta.url);
 const at = (name) => new URL(name, root);
 const text = (url) => readFileSync(url, 'utf8');
-const types = { webp: 'image/webp', svg: 'image/svg+xml', woff2: 'font/woff2', txt: 'text/plain' };
+const types = {
+  glb: 'model/gltf-binary',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+  woff2: 'font/woff2',
+  txt: 'text/plain',
+};
 function asset(url) {
   const type = types[url.pathname.split('.').at(-1)];
   if (!type || !url.href.startsWith(at('img/').href)) throw Error(`Unexpected asset: ${url}`);
@@ -21,7 +27,7 @@ function css(name) {
   );
 }
 // Keep ES module scopes intact. Inline local dependencies rather than loading file:// modules,
-// which mobile browsers can reject. The only URL-based JS assets are the two globe maps.
+// which mobile browsers can reject. The globe maps and portrait mesh stay local too.
 function moduleSource(url) {
   if (!url.href.startsWith(at('src/').href)) throw Error(`Unexpected module: ${url}`);
   return text(url)

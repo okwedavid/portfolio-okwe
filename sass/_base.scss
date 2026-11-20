@@ -297,3 +297,44 @@ textarea:focus-visible,
     animation-iteration-count: 1 !important;
   }
 }
+.link-recovery {
+  position: fixed;
+  z-index: 100;
+  right: 14px;
+  bottom: 14px;
+  width: min(338px, calc(100% - 28px));
+  padding: 15px;
+  border: 1px solid #4c6658;
+  border-radius: 10px;
+  background: #111a17;
+  color: #e6f7ed;
+  box-shadow: 0 7px 28px #0008;
+  font-size: 13px;
+}
+.link-recovery strong {
+  display: block;
+}
+.link-recovery p {
+  margin: 5px 16px 7px 0;
+}
+.link-recovery input {
+  width: 100%;
+  padding: 6px;
+  color: inherit;
+  background: #09110d;
+  border: 1px solid #5d7567;
+  border-radius: 3px;
+}
+.link-recovery .recovery-close {
+  position: absolute;
+  right: 7px;
+  top: 5px;
+  padding: 4px 8px;
+}
+.link-recovery .recovery-copy,
+.link-recovery a {
+  display: inline-block;
+  padding: 7px 12px 2px 0;
+  color: var(--mint);
+  text-decoration: underline;
+}

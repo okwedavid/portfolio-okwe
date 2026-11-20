@@ -246,6 +246,9 @@
     margin-top: 15px;
   }
   .scene-caption {
+    /* The live clock must not cover the geographic label next to the portrait. */
+    left: 0;
+    right: auto;
     bottom: 14px;
     font-size: 8px;
     gap: 6px;

@@ -1,3 +1,4 @@
+import { initGitHubLinks } from './github-links.js';
 import { initEarth } from './earth.js';
 import { initContact } from './contact.js';
 
@@ -132,6 +133,17 @@ function showCase(card) {
   else live.removeAttribute('href');
   openDialog(caseDialog);
 }
+// Keep an un-intercepted, one-click source link next to the case-study opener.
+for (const card of cards) {
+  const link = document.createElement('a');
+  link.className = 'project-source';
+  link.href = card.querySelector('.project-open').href;
+  link.target = '_top';
+  link.rel = 'noreferrer';
+  link.textContent = 'GitHub ↗';
+  link.setAttribute('aria-label', `${card.querySelector('h3').textContent} source on GitHub`);
+  card.append(link);
+}
 for (const el of document.querySelectorAll('.project-open,[data-case-link]')) {
   el.addEventListener('click', (e) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !caseDialog.showModal) return;
@@ -144,6 +156,7 @@ for (const el of document.querySelectorAll('.project-open,[data-case-link]')) {
 }
 initContact(openDialog);
 // Decorative rendering is independent of navigation, project evidence, and contact.
+initGitHubLinks();
 try {
   initEarth();
 } catch {

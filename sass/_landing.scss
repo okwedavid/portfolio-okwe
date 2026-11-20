@@ -505,24 +505,135 @@
   width: min(100%, 282px);
   margin: 0;
 }
-.profile-portrait img {
+.portrait-stage {
+  position: relative;
   width: 100%;
-  height: auto;
-  /* Fade the cropped jacket hem into the sky; the photograph itself has a true alpha cutout. */
-  mask-image: linear-gradient(to bottom, #000 0 83%, transparent 100%);
+  aspect-ratio: 0.9;
+  touch-action: pan-y;
+  user-select: none;
+}
+.portrait-stage.model-ready {
+  cursor: ew-resize;
+}
+.portrait-stage::before {
+  content: '';
+  position: absolute;
+  bottom: 1%;
+  left: 14%;
+  width: 72%;
+  height: 9%;
+  border-radius: 50%;
+  border: 1px solid #91d8bc60;
+  background: radial-gradient(ellipse, #86d8b229, transparent 68%);
+  box-shadow: 0 2px 0 -1px #79d1ae53;
+}
+.portrait-stage img,
+.portrait-stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .profile-portrait figcaption {
   display: flex;
-  gap: 9px;
   align-items: center;
-  color: #d2e9db;
-  font: 9px/1.5 var(--mono);
-  letter-spacing: 1.5px;
+  gap: 8px;
+  color: #dcf1e4;
+  font: 10px/1.5 var(--mono);
+  letter-spacing: 1.2px;
 }
 .profile-portrait figcaption span {
-  width: 23px;
+  width: 20px;
   height: 1px;
   background: var(--mint);
+}
+.profile-portrait figcaption b {
+  color: #859b91;
+  font-weight: 400;
+}
+.portrait-controls {
+  width: min(100%, 248px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 3px 9px;
+  padding-top: 6px;
+}
+.portrait-controls label {
+  font: 10px var(--mono);
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: #def4e6;
+}
+.portrait-controls output {
+  color: var(--mint);
+  justify-self: end;
+  font: 10px var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.portrait-controls input {
+  grid-column: 1/-1;
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  accent-color: var(--mint);
+  cursor: ew-resize;
+  min-height: 24px;
+}
+.portrait-controls input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background:
+    repeating-linear-gradient(90deg, #90b7a5 0 1px, transparent 1px 9.9%),
+    linear-gradient(#39574a, #496455);
+}
+.portrait-controls input::-webkit-slider-thumb {
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border: 2px solid #cbf6de;
+  border-radius: 50%;
+  background: #7ddbad;
+  margin-top: -4.5px;
+  box-shadow: 0 0 8px #b4ffd238;
+}
+.portrait-controls input::-moz-range-track {
+  height: 4px;
+  background: #587363;
+}
+.portrait-controls input::-moz-range-thumb {
+  background: #aef1c9;
+  border-radius: 50%;
+}
+.project-source {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  padding: 5px 8px;
+  border: 1px solid #ffffff40;
+  border-radius: 4px;
+  background: #09100ee0;
+  color: #e0eee7;
+  font: 10px/1.4 var(--mono);
+}
+.project-source:hover,
+.project-source:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.portrait-controls p,
+.portrait-controls button,
+.portrait-launch {
+  font: 10px/1.5 var(--mono);
+  color: #c3d0cb;
+}
+.portrait-controls button,
+.portrait-launch,
+.portrait-shortcut {
+  color: var(--mint);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .about-copy {
   grid-area: bio;

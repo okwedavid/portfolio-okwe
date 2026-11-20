@@ -28,6 +28,43 @@ test('the sky stays fixed and animates below the hero; only the work cards paint
   await expect(page.getByRole('button', { name: 'Resume orbital motion' })).toBeVisible();
 });
 
+for (const [layout, viewport, maxPinWidth] of [
+  ['desktop', { width: 1366, height: 800 }, 36],
+  ['phone', { width: 393, height: 852 }, 24],
+]) {
+  test(`${layout}: the small Nigeria pin and full-size About use the same static photograph`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    const meshes = [];
+    page.on('request', (r) => {
+      if (/\.glb(?:\?|$)/i.test(r.url())) meshes.push(r.url());
+    });
+    await page.goto('/');
+    const pin = page.locator('img.base-portrait');
+    await expect(pin).toBeInViewport();
+    await pin.evaluate((img) => img.decode());
+    const { width } = await pin.boundingBox();
+    expect(width).toBeGreaterThanOrEqual(20);
+    expect(width).toBeLessThanOrEqual(maxPinWidth);
+
+    await page.getByRole('link', { name: 'View portrait', exact: true }).click();
+    const photo = page.getByRole('img', { name: 'Portrait of Okwe David' });
+    await expect(photo).toBeInViewport();
+    await photo.evaluate((img) => img.decode());
+    await expect(photo).toHaveAttribute('src', /okwe-david(?:\.[a-z0-9]+)?\.webp$/);
+    expect(await photo.evaluate((img) => img.currentSrc)).toBe(
+      await pin.evaluate((img) => img.currentSrc),
+    );
+    expect((await photo.boundingBox()).width).toBeGreaterThan(6 * width);
+    await expect(
+      page.locator('.profile-portrait canvas, .profile-portrait input, .profile-portrait button'),
+    ).toHaveCount(0);
+    expect(meshes).toEqual([]);
+  });
+}
+
 test('mobile About puts a decoded, truly transparent portrait above the biography', async ({
   page,
 }) => {

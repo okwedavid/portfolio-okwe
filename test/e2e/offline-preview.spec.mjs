@@ -30,6 +30,9 @@ test('downloaded phone preview opens from a file without the gateway or any HTTP
   await page.getByRole('link', { name: 'Engineering brief', exact: true }).first().click();
   await expect(page.locator('.brief-projects article:visible')).toHaveCount(5);
   await expect(page.locator('#earth-canvas')).toHaveCount(1);
+  const pin = page.locator('img.base-portrait');
+  await pin.evaluate((img) => img.decode());
+  await expect(pin).toHaveAttribute('src', /^data:image\/webp;base64,/);
   await expect(page.locator('.universe')).toBeInViewport();
   await expect(page.locator('#offline-brief [data-orbit-toggle]')).toBeVisible();
   await page.getByRole('link', { name: /Back to portfolio/ }).click();

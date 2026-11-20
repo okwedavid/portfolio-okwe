@@ -12,7 +12,6 @@ import {
 
 import { photosphere } from './photosphere.js';
 import { starfield } from './stars.js';
-import { portraitStudio } from './portrait.js';
 
 const RADIUS = 1000 * EARTH_RADIUS;
 const SVG = 'http://www.w3.org/2000/svg';
@@ -38,7 +37,7 @@ function overlay(scene) {
     Math.cos(lat * RAD) * Math.sin(lon * RAD),
   ];
   const home = vector(9, 8);
-  const bust = scene.querySelector('.base-bust');
+  const photo = scene.querySelector('.base-portrait');
   function project(point, basis) {
     const [x, y, z] = projectPoint(point, basis);
     return [500 + RADIUS * x, 500 - RADIUS * y, z];
@@ -102,25 +101,7 @@ function overlay(scene) {
   const marker = make('g', { id: 'base-marker' }, svg);
   make(
     'circle',
-    { r: 15, fill: '#a8f5cf', 'fill-opacity': 0.1, stroke: '#a8f5cf', 'stroke-opacity': 0.38 },
-    marker,
-  );
-  make(
-    'ellipse',
-    {
-      rx: 37,
-      ry: 6,
-      fill: '#18362c',
-      'fill-opacity': 0.31,
-      stroke: '#c7ffe0',
-      'stroke-opacity': 0.85,
-      'stroke-width': 1.35,
-    },
-    marker,
-  );
-  make(
-    'ellipse',
-    { rx: 44, ry: 9, stroke: '#b7f6ce', 'stroke-dasharray': '28 8 5 8', 'stroke-opacity': 0.6 },
+    { r: 10, fill: '#a8f5cf', 'fill-opacity': 0.1, stroke: '#a8f5cf', 'stroke-opacity': 0.38 },
     marker,
   );
   make('circle', { r: 4, fill: '#b6ffdb' }, marker);
@@ -165,9 +146,9 @@ function overlay(scene) {
     }
     const [x, y, z] = project(home, basis);
     marker.setAttribute('visibility', z > 0 ? 'visible' : 'hidden');
-    bust.hidden = z <= 0;
-    bust.style.left = `${x / 10}%`;
-    bust.style.top = `${y / 10}%`;
+    photo.hidden = z <= 0;
+    photo.style.left = `${x / 10}%`;
+    photo.style.top = `${y / 10}%`;
     marker.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
   }
   function tracer(time) {
@@ -181,7 +162,6 @@ function overlay(scene) {
 
 export function initEarth() {
   const stars = starfield(document.querySelector('#starfield'));
-  const portrait = portraitStudio();
   const sky = document.querySelector('.universe');
   const scene = sky.querySelector('.earth-scene');
   const canvas = scene.querySelector('#earth-canvas');
@@ -218,8 +198,8 @@ export function initEarth() {
   }
   function render(seconds = clock(), force = false) {
     const utc = paused ? heldAt : Date.now();
-    // At 1:1 speed a one-second Earth update is already subpixel. Stars and the
-    // pointer-driven bust don't need to redraw the full-size globe.
+    // At 1:1 speed a one-second Earth update is already subpixel. The stars
+    // can repaint independently without redrawing the full-size globe.
     if (force || !lastState || (draw && Math.floor(utc / 1000) !== sampledAt)) {
       const state = draw ? solarState(utc, camera) : opening;
       sampledAt = Math.floor(utc / 1000);
@@ -265,7 +245,6 @@ export function initEarth() {
     frame = 0;
     lastPaint = null;
     render(elapsed, true);
-    portrait(!paused && visible && !document.hidden);
     if (!paused && visible && !document.hidden) {
       runningSince = now;
       frame = requestAnimationFrame(tick);
@@ -321,6 +300,12 @@ export function initEarth() {
     sync();
     activate();
   }).observe(sky);
+  // Avoid a second face behind the full-size About photograph.
+  const profile = document.querySelector('.profile-portrait');
+  if (profile)
+    new IntersectionObserver(([entry]) => {
+      sky.classList.toggle('profile-in-view', entry.isIntersecting);
+    }).observe(profile);
   const overview = document.getElementById('overview');
   if (overview)
     new IntersectionObserver(

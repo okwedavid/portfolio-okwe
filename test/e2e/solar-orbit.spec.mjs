@@ -78,7 +78,7 @@ async function sampleLight(page, t) {
   );
 }
 
-test('UTC lights the real framebuffer while the same geographic point carries the bust around a fixed-size globe', async ({
+test('UTC lights the real framebuffer while the same geographic point carries the portrait pin around a fixed-size globe', async ({
   page,
 }) => {
   // Only the test needs framebuffer readback after compositing; production can discard it.
@@ -97,10 +97,10 @@ test('UTC lights the real framebuffer while the same geographic point carries th
   expect(start.visible).toBe('visible');
   expect(start.transmission).toBe(1);
   await sampleLight(page, POSTER_UTC);
-  const pin = page.locator('.base-bust');
+  const pin = page.locator('.base-portrait');
   await expect(pin).toBeVisible();
   const aligned = await page.evaluate(() => {
-    const p = document.querySelector('.base-bust'),
+    const p = document.querySelector('.base-portrait'),
       origin = document.querySelector('#base-marker').transform.baseVal.getItem(0).matrix;
     return Math.hypot(
       10 * parseFloat(p.style.left) - origin.e,

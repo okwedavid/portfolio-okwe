@@ -8,7 +8,6 @@ const root = new URL('../', import.meta.url);
 const at = (name) => new URL(name, root);
 const text = (url) => readFileSync(url, 'utf8');
 const types = {
-  glb: 'model/gltf-binary',
   webp: 'image/webp',
   svg: 'image/svg+xml',
   woff2: 'font/woff2',
@@ -27,7 +26,7 @@ function css(name) {
   );
 }
 // Keep ES module scopes intact. Inline local dependencies rather than loading file:// modules,
-// which mobile browsers can reject. The globe maps and portrait mesh stay local too.
+// which mobile browsers can reject. The globe maps stay local too.
 function moduleSource(url) {
   if (!url.href.startsWith(at('src/').href)) throw Error(`Unexpected module: ${url}`);
   return text(url)

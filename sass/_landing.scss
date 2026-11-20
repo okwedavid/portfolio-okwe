@@ -505,35 +505,11 @@
   width: min(100%, 282px);
   margin: 0;
 }
-.portrait-stage {
-  position: relative;
+.profile-portrait img {
   width: 100%;
-  aspect-ratio: 0.9;
-  touch-action: pan-y;
-  user-select: none;
-}
-.portrait-stage.model-ready {
-  cursor: ew-resize;
-}
-.portrait-stage::before {
-  content: '';
-  position: absolute;
-  bottom: 1%;
-  left: 14%;
-  width: 72%;
-  height: 9%;
-  border-radius: 50%;
-  border: 1px solid #91d8bc60;
-  background: radial-gradient(ellipse, #86d8b229, transparent 68%);
-  box-shadow: 0 2px 0 -1px #79d1ae53;
-}
-.portrait-stage img,
-.portrait-stage canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: auto;
+  /* Soften the cropped jacket hem; leave the face and its proportions unchanged. */
+  mask-image: linear-gradient(to bottom, #000 0 85%, transparent 100%);
 }
 .profile-portrait figcaption {
   display: flex;
@@ -552,60 +528,6 @@
   color: #859b91;
   font-weight: 400;
 }
-.portrait-controls {
-  width: min(100%, 248px);
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 3px 9px;
-  padding-top: 6px;
-}
-.portrait-controls label {
-  font: 10px var(--mono);
-  letter-spacing: 0.7px;
-  text-transform: uppercase;
-  color: #def4e6;
-}
-.portrait-controls output {
-  color: var(--mint);
-  justify-self: end;
-  font: 10px var(--mono);
-  font-variant-numeric: tabular-nums;
-}
-.portrait-controls input {
-  grid-column: 1/-1;
-  width: 100%;
-  appearance: none;
-  background: transparent;
-  accent-color: var(--mint);
-  cursor: ew-resize;
-  min-height: 24px;
-}
-.portrait-controls input::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 2px;
-  background:
-    repeating-linear-gradient(90deg, #90b7a5 0 1px, transparent 1px 9.9%),
-    linear-gradient(#39574a, #496455);
-}
-.portrait-controls input::-webkit-slider-thumb {
-  appearance: none;
-  width: 13px;
-  height: 13px;
-  border: 2px solid #cbf6de;
-  border-radius: 50%;
-  background: #7ddbad;
-  margin-top: -4.5px;
-  box-shadow: 0 0 8px #b4ffd238;
-}
-.portrait-controls input::-moz-range-track {
-  height: 4px;
-  background: #587363;
-}
-.portrait-controls input::-moz-range-thumb {
-  background: #aef1c9;
-  border-radius: 50%;
-}
 .project-source {
   position: absolute;
   right: 12px;
@@ -622,14 +544,6 @@
   border-color: var(--accent);
   color: var(--accent);
 }
-.portrait-controls p,
-.portrait-controls button,
-.portrait-launch {
-  font: 10px/1.5 var(--mono);
-  color: #c3d0cb;
-}
-.portrait-controls button,
-.portrait-launch,
 .portrait-shortcut {
   color: var(--mint);
   text-decoration: underline;

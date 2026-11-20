@@ -103,11 +103,7 @@
             fetchpriority="high"
           />
           <canvas id="earth-canvas"></canvas>
-          <div class="base-bust">
-            <img src="./img/okwe-david.webp" alt="" width="600" height="712" /><canvas
-              aria-hidden="true"
-            ></canvas>
-          </div>
+          <img class="base-portrait" src="./img/okwe-david.webp" width="600" height="712" alt="" />
         </div>
       </div>
     </figure>
@@ -176,7 +172,9 @@
             <div class="location">
               <svg class="icon"><use href="#i-pin" /></svg>Nigeria <span class="slash">/</span>
               <span>Open to remote</span><span class="slash">/</span
-              ><a class="portrait-shortcut" href="#about">3D portrait ↗</a>
+              ><a class="portrait-shortcut" href="#about"
+                >View portrait <span aria-hidden="true">↓</span></a
+              >
             </div>
           </div>
           <a
@@ -660,34 +658,15 @@
             <h2 id="about-title">Beyond the model<span class="mint">.</span></h2>
           </div>
           <figure class="profile-portrait">
-            <div class="portrait-stage">
-              <img
-                src="./img/okwe-david.webp"
-                alt="Portrait of Okwe David"
-                width="600"
-                height="712"
-                loading="lazy"
-                decoding="async"
-              />
-              <canvas aria-hidden="true"></canvas>
-            </div>
+            <img
+              src="./img/okwe-david.webp"
+              alt="Portrait of Okwe David"
+              width="600"
+              height="712"
+              loading="lazy"
+              decoding="async"
+            />
             <figcaption><span aria-hidden="true"></span>OKWE DAVID <b>/</b> BASE : NG</figcaption>
-            <div class="portrait-controls" hidden>
-              <label for="portrait-yaw">Portrait yaw / 360°</label
-              ><output aria-live="off" for="portrait-yaw">000°</output>
-              <input
-                type="range"
-                id="portrait-yaw"
-                min="-180"
-                max="180"
-                step="1"
-                value="0"
-                aria-describedby="portrait-help"
-              />
-              <p id="portrait-help">Move pointer or drag</p>
-              <button type="button">Face front</button>
-            </div>
-            <button class="portrait-launch" type="button" hidden>View in 3D</button>
           </figure>
           <div class="about-copy">
             <p>
